@@ -23,9 +23,19 @@ jobs:
       - uses: actions/checkout@v4
 
       # Works whether the project is at the repo root or inside one sub-folder
+      - name: Extract project zip (if the repo only has a zip)
+        run: |
+          if [ -z "$(find . -maxdepth 3 -name settings.gradle -not -path './.git/*')" ]; then
+            Z=$(find . -maxdepth 2 -iname '*.zip' -not -path './.git/*' | head -1)
+            if [ -n "$Z" ]; then
+              echo "Unzipping $Z"
+              unzip -q "$Z" -d _project
+            fi
+          fi
+
       - name: Locate Gradle project
         run: |
-          F=$(find . -maxdepth 2 -name settings.gradle -not -path './.git/*' | awk '{print length, $0}' | sort -n | head -1 | cut -d' ' -f2-)
+          F=$(find . -maxdepth 3 -name settings.gradle -not -path './.git/*' | awk '{print length, $0}' | sort -n | head -1 | cut -d' ' -f2-)
           if [ -z "$F" ]; then
             echo "::error::settings.gradle not found. Upload the project files (settings.gradle, build.gradle, application/...) to the repo."
             exit 1
@@ -78,9 +88,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract project zip (if the repo only has a zip)
+        run: |
+          if [ -z "$(find . -maxdepth 3 -name settings.gradle -not -path './.git/*')" ]; then
+            Z=$(find . -maxdepth 2 -iname '*.zip' -not -path './.git/*' | head -1)
+            if [ -n "$Z" ]; then
+              echo "Unzipping $Z"
+              unzip -q "$Z" -d _project
+            fi
+          fi
+
       - name: Locate Gradle project
         run: |
-          F=$(find . -maxdepth 2 -name settings.gradle -not -path './.git/*' | awk '{print length, $0}' | sort -n | head -1 | cut -d' ' -f2-)
+          F=$(find . -maxdepth 3 -name settings.gradle -not -path './.git/*' | awk '{print length, $0}' | sort -n | head -1 | cut -d' ' -f2-)
           if [ -z "$F" ]; then
             echo "::error::settings.gradle not found."
             exit 1
